@@ -49,4 +49,4 @@ spec:
               value: {{ .Values.config.javaOpts }}
           envFrom:
             - configMapRef:
-                name: {{ include "java-app.fullname" . }}-config
+                name: {{ .Chart.Name }}-{{ .Release.Name }}-config
