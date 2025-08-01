@@ -44,6 +44,11 @@ public class NumericController {
 			logger.info("Node Service Response - " + response);
 			return Integer.parseInt(response);
 		}
+
+        @GetMapping("/health")
+        public String healthCheck() {
+            return "OK";
+        }
 	}
 
 }
