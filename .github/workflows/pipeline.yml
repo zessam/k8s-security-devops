@@ -10,43 +10,84 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Run tests
-        run: mvn test
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Run tests
+      run: mvn test
 
   docker:
     runs-on: ubuntu-latest
     needs: test
+    outputs:
+      image-uri: ${{ steps.build.outputs.image-uri }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-1
+        
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+      
+    - name: Build Docker image
+      id: build
+      run: |
+        export SHORT_SHA=$(git rev-parse --short HEAD)
+        IMAGE_URI=369528189607.dkr.ecr.eu-west-1.amazonaws.com/devsecops/java-app:${SHORT_SHA}
+        docker build -t $IMAGE_URI .
+        echo "image-uri=$IMAGE_URI" >> $GITHUB_OUTPUT
+        
+    - name: Push Docker image to ECR
+      run: |
+        docker push ${{ steps.build.outputs.image-uri }}
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1
-
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build Docker image
-        run: |
-          IMAGE_URI=369528189607.dkr.ecr.eu-west-1.amazonaws.com/devsecops/java-app:latest
-          docker build -t $IMAGE_URI .
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-
-      - name: Push Docker image to ECR
-        run: |
-          docker push ${{ env.IMAGE_URI }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-1
+        
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region eu-west-1 --name eks-devsecops-cluster
+        
+    - name: Update deployment with new image
+      run: |
+        # Replace image placeholder in deployment file
+        sed -i "s|IMAGE_URI_PLACEHOLDER|${{ needs.docker.outputs.image-uri }}|g" k8s_deployment_service.yaml
+        
+        # Apply the deployment
+        kubectl apply -f k8s_deployment_service.yaml
+        
+    - name: Verify deployment
+      run: |
+        # Wait for rollout to complete
+        kubectl rollout status deployment/java-app-deployment --timeout=300s
+        
+        # Get deployment status
+        kubectl get deployment java-app-deployment
+        kubectl get pods -l app=java-app
+        kubectl get service java-app-service
