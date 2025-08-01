@@ -19,7 +19,7 @@
     LABEL org.opencontainers.image.title="Secure Java App" \
           org.opencontainers.image.description="Hardened Java container using non-root user, multistage build, and healthcheck." \
           org.opencontainers.image.version="1.0.0" \
-          org.opencontainers.image.source="https://github.com/your-org/your-app" \
+          org.opencontainers.image.source="https://github.com/zessam/k8s-security-devops" \
           org.opencontainers.image.licenses="Apache-2.0"
     
     # Add wget for HEALTHCHECK (small footprint)
@@ -32,7 +32,7 @@
     WORKDIR /home/k8s-pipeline
     
     # Copy the built JAR file from the build stage
-    COPY --from=builder /app/target/app.jar ./app.jar
+    COPY --from=builder /app/target/numeric-0.0.1.jar ./app.jar
     
     # Set permissions: owned by root, not writable by app user
     RUN chown root:root app.jar && chmod 755 app.jar
