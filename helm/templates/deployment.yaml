@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}-{{ .Release.Name }}
+  name: {{ include "java-app.fullname" . }}
   labels:
     app: {{ .Chart.Name }}
     release: {{ .Release.Name }}
@@ -18,14 +18,13 @@ spec:
         app: {{ .Chart.Name }}
         release: {{ .Release.Name }}
     spec:
-      # No imagePullSecrets needed - nodes have ECR permissions!
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.targetPort }}
+              containerPort: {{ .Values.containerPort }}
               protocol: TCP
           {{- if .Values.healthCheck.enabled }}
           livenessProbe:
@@ -50,4 +49,4 @@ spec:
               value: {{ .Values.config.javaOpts }}
           envFrom:
             - configMapRef:
-                name: {{ .Chart.Name }}-{{ .Release.Name }}-config
+                name: {{ include "java-app.fullname" . }}-config

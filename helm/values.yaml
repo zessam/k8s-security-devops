@@ -1,16 +1,22 @@
-# Clean values - no imagePullSecrets needed
 replicaCount: 2
 
 image:
-  repository: 369528189607.dkr.ecr.eu-west-1.amazonaws.com/devsecops/java-app
+  repository: 369528189607.dkr.ecr.eu-west-1.amazonaws.com/prodsecops/java-app
+  tag: latest
   pullPolicy: Always
-  tag: "latest"
+
+containerPort: 8080
 
 service:
   type: LoadBalancer
-  name: java-app
-  port: 8080
+  port: 80
   targetPort: 8080
+
+healthCheck:
+  enabled: true
+  path: /health
+  initialDelaySeconds: 10
+  periodSeconds: 10
 
 resources:
   limits:
@@ -20,18 +26,8 @@ resources:
     cpu: 250m
     memory: 256Mi
 
-# Health checks
-healthCheck:
-  enabled: true
-  path: /health
-  initialDelaySeconds: 30
-  periodSeconds: 10
-
-# Application configuration
 config:
-  springProfile: "default"
-  logLevel: "INFO"
-  javaOpts: "-Xmx256m"
+  springProfile: prod
+  javaOpts: "-Xms512m -Xmx512m"
 
-# Environment-specific settings
-environment: "development"
+environment: prod
