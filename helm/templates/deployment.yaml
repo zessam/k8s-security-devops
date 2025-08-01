@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "java-app.fullname" . }}
+  name: {{ .Chart.Name }}-{{ .Release.Name }}
   labels:
     app: {{ .Chart.Name }}
     release: {{ .Release.Name }}
