@@ -43,6 +43,7 @@ jobs:
 
       - name: Build Docker image
         run: |
+          export SHORT_SHA=$(git rev-parse --short HEAD)
           IMAGE_URI=369528189607.dkr.ecr.eu-west-1.amazonaws.com/devsecops/java-app:${SHORT_SHA}
           docker build -t $IMAGE_URI .
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
