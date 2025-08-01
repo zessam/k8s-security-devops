@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-{{ .Release.Name }}-config
+  labels:
+    app: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+    environment: {{ .Values.environment }}
+data:
+  LOG_LEVEL: {{ .Values.config.logLevel }}
+  ENVIRONMENT: {{ .Values.environment }}
+  APP_NAME: {{ .Chart.Name }}-{{ .Release.Name }}
