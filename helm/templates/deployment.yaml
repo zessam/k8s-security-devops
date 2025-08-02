@@ -18,11 +18,6 @@ spec:
         app: {{ .Chart.Name }}
         release: {{ .Release.Name }}
     spec:
-      securityContext:
-        {{- if .Values.podSecurityContext.enabled }}
-        seccompProfile:
-          type: {{ .Values.podSecurityContext.seccompProfile.type | quote }}
-        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -52,18 +47,4 @@ spec:
               value: {{ .Values.config.springProfile }}
             - name: JAVA_OPTS
               value: {{ .Values.config.javaOpts }}
-          securityContext:
-            runAsUser: {{ .Values.securityContext.runAsUser }}
-            runAsGroup: {{ .Values.securityContext.runAsGroup }}
-            runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
-            readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
-            allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation }}
-            capabilities:
-              drop:
-              {{- range .Values.securityContext.capabilities.drop }}
-                - {{ . }}
-              {{- end }}
-              add:
-              {{- range .Values.securityContext.capabilities.add }}
-                - {{ . }}
-              {{- end }}
+
