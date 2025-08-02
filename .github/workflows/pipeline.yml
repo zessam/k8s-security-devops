@@ -53,12 +53,12 @@ jobs:
 
   # ------------------ OWASP Dependency-Check (SCA) ------------------
 
-
   dependency-check:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Cache Dependency-Check Data
         uses: actions/cache@v3
@@ -94,6 +94,7 @@ jobs:
           args: >
             --failOnCVSS 7
             --enableRetired
+
       - name: Upload HTML Report as Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -101,11 +102,9 @@ jobs:
           path: reports/dependency-check-report.html
 
       - name: Upload SARIF to GitHub Security Dashboard
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/dependency-check-report.sarif
-
-
 
 
 
