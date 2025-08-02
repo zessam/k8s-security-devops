@@ -34,44 +34,45 @@ jobs:
         run: mvn test
 
   # ------------------ OWASP Dependency-Check (SCA) ------------------
-
   dependency-check:
+    name: Dependency Check (OWASP)
     runs-on: ubuntu-latest
-    needs: test
     permissions:
-      security-events: write
+      security-events: write # needed for SARIF upload
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Cache OWASP Dependency-Check DB
+      - name: Cache OWASP Dependency-Check data
         uses: actions/cache@v4
         with:
           path: ~/.dependency-check
-          key: dependency-check-db
+          key: ${{ runner.os }}-owasp-dc-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-owasp-dc-
 
-      - name: Run OWASP Dependency-Check (SARIF + HTML)
+      - name: Run OWASP Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
         with:
-          project: 'JavaApp'
+          project: 'java-app'
           path: '.'
-          out: 'reports'
-          args: >-
-            --format SARIF
-            --format HTML
-            --failOnCVSS 7
+          format: 'HTML,SARIF'
+          out: 'dependency-check-report'
 
       - name: Upload SARIF to GitHub Security Dashboard
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: reports/dependency-check-report.sarif
+          sarif_file: dependency-check-report/dependency-check-report.sarif
 
-      - name: Upload reports as artifact
-        if: always()
+      - name: Upload HTML report as GitHub Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-check-report
-          path: reports
+          name: dependency-check-html
+          path: dependency-check-report/dependency-check-report.html
+
+
+
   # ------------------ Mutation Testing with PIT ------------------
   mutation-test:
     runs-on: ubuntu-latest
