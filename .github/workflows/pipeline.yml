@@ -105,7 +105,7 @@ jobs:
       run: |
         aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
         
-        helm upgrade --install ./helm \
+        helm upgrade --install java-app ./helm \
           --namespace default \
           --set image.tag=${{ needs.build-and-push.outputs.image-tag }} \
           --wait --timeout=5m
