@@ -34,45 +34,49 @@ jobs:
         run: mvn test
 
   # ------------------ OWASP Dependency-Check (SCA) ------------------
+
   dependency-check:
-    name: Dependency Check (OWASP)
     runs-on: ubuntu-latest
     permissions:
-      security-events: write # needed for SARIF upload
-
+      security-events: write  # Required for SARIF upload
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Cache OWASP Dependency-Check data
+      - name: Restore CVE DB Cache
         uses: actions/cache@v4
         with:
-          path: ~/.dependency-check
-          key: ${{ runner.os }}-owasp-dc-${{ hashFiles('**/pom.xml') }}
+          path: odc-data
+          key: odc-cve-db-${{ runner.os }}
           restore-keys: |
-            ${{ runner.os }}-owasp-dc-
+            odc-cve-db-
 
-      - name: Run OWASP Dependency-Check
-        uses: dependency-check/Dependency-Check_Action@main
+      - name: Run OWASP Dependency Check (SARIF + HTML)
+        run: |
+          mkdir -p reports
+          mkdir -p odc-data
+
+          docker run --rm \
+            -v "$(pwd):/src" \
+            -v "$(pwd)/odc-data:/usr/share/dependency-check/data" \
+            -v "$(pwd)/reports:/report" \
+            owasp/dependency-check \
+            --project "java-app" \
+            --scan /src \
+            --format HTML \
+            --format SARIF \
+            --out /report
+
+      - name: Upload SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          project: 'java-app'
-          path: '.'
-          format: 'HTML,SARIF'
-          out: 'dependency-check-report'
+          sarif_file: reports/dependency-check-report.sarif
 
-      - name: Upload SARIF to GitHub Security Dashboard
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: dependency-check-report/dependency-check-report.sarif
-
-      - name: Upload HTML report as GitHub Artifact
+      - name: Archive HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-html
-          path: dependency-check-report/dependency-check-report.html
-
-
-
+          path: reports/dependency-check-report.html
   # ------------------ Mutation Testing with PIT ------------------
   mutation-test:
     runs-on: ubuntu-latest
