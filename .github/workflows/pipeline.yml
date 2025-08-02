@@ -72,7 +72,7 @@ jobs:
         run: mvn clean install
 
       - name: Run OWASP Dependency-Check (HTML + SARIF)
-        uses: dependency-check/Dependency-Check_Action@main
+        uses: dependency-check/Dependency-Check_Action@1.1.0
         id: depcheck
         with:
           project: 'test'
