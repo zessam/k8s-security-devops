@@ -16,6 +16,7 @@ env:
 
 jobs:
 
+
   # ------------------ Test Stage ------------------
   test:
     runs-on: ubuntu-latest
@@ -33,10 +34,27 @@ jobs:
       - name: Run unit tests
         run: mvn test
 
-  # ------------------ OWASP Dependency-Check (SCA) ------------------
+  # ------------------ Mutation Testing with PIT ------------------
+  mutation-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Set up JDK 17 and cache Maven
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run PIT mutation testing
+        run: mvn clean test org.pitest:pitest-maven:mutationCoverage
+
+  # ------------------ OWASP Dependency-Check (SCA) ------------------
   dependency-check:
     runs-on: ubuntu-latest
+    needs: [test, mutation-test]
     permissions:
       security-events: write  # Required for SARIF upload
     steps:
@@ -77,23 +95,6 @@ jobs:
         with:
           name: dependency-check-html
           path: reports/dependency-check-report.html
-  # ------------------ Mutation Testing with PIT ------------------
-  mutation-test:
-    runs-on: ubuntu-latest
-    needs: [test, dependency-check]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17 and cache Maven
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Run PIT mutation testing
-        run: mvn clean test org.pitest:pitest-maven:mutationCoverage
 
   # ------------------ Docker Build & Push to ECR ------------------
   build-and-push:
