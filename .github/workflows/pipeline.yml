@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+  security-events: write  # ✅ REQUIRED FOR upload-sarif TO WORK
+
+
 # Set shared environment variables
 env:
   ECR_REGISTRY: 369528189607.dkr.ecr.eu-west-1.amazonaws.com
