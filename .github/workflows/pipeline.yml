@@ -117,7 +117,7 @@ jobs:
   # ------------------ Docker Build & Push to ECR ------------------
   build-and-push:
     runs-on: ubuntu-latest
-    needs: [test, mutation-test, dependency-check]
+    needs: [test, mutation-test]
     if: github.ref == 'refs/heads/main'
     outputs:
       image-tag: ${{ steps.build.outputs.tag }}
