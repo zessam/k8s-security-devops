@@ -6,6 +6,8 @@ image:
   pullPolicy: Always
 
 containerPort: 8080
+
+
 fullnameOverride: java-app
 
 service:
