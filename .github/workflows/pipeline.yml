@@ -73,7 +73,7 @@ jobs:
 
       - name: Run Security Scan
         run: |
-          ./scripts/security-scan.sh "${{ secrets.NVD_API_KEY }}" "7"
+          ./scripts/dependency-check.sh "${{ secrets.NVD_API_KEY }}" "7"
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
