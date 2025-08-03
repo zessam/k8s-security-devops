@@ -73,6 +73,7 @@ jobs:
 
       - name: Run Security Scan
         run: |
+          sudo chmod +x ./scripts/dependency-check.sh
           ./scripts/dependency-check.sh "${{ secrets.NVD_API_KEY }}" "7"
 
       - name: Upload SARIF to GitHub Security
@@ -96,7 +97,7 @@ jobs:
           ls -la
           if [ -f dockerfile ]; then
             echo "Running OPA security check on Dockerfile..."
-            docker run --rm -v $(pwd):/policy openpolicyagent/conftest:latest test dockerfile --policy opa-docker-security.rego
+            docker run --rm -v $(pwd):/policy -w /policy openpolicyagent/conftest:latest test dockerfile --policy opa-docker-security.rego         
           else
             echo "Dockerfile not found!"
             exit 1
