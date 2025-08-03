@@ -58,59 +58,61 @@ jobs:
 
   # ------------------ OWASP Dependency-Check (SCA) ------------------
 
+
+
+
   dependency-check:
-    runs-on: ubuntu-latest
+      runs-on: ubuntu-latest
+      if: github.event_name != 'push' || github.ref == 'refs/heads/main'
+      
+      steps:
+        - uses: actions/checkout@v4
+        
+        - uses: actions/setup-java@v4
+          with:
+            distribution: 'temurin'
+            java-version: '17'
+            cache: 'maven'
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+        - uses: actions/cache@v4
+          with:
+            path: ~/.dependency-check
+            key: depcheck-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            restore-keys: depcheck-${{ runner.os }}-
 
-      - name: Cache Dependency-Check Data
-        uses: actions/cache@v3
-        with:
-          path: ~/.dependency-check
-          key: dependency-check-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            dependency-check-${{ runner.os }}-
+        - run: |
+            mvn compile -q -DskipTests
+            mkdir -p reports
 
-      - name: Build project with Maven
-        run: mvn clean install
+        - uses: dependency-check/Dependency-Check_Action@main
+          env:
+            JAVA_HOME: /opt/jdk
+          with:
+            project: 'app-security'
+            path: '.'
+            format: 'SARIF'
+            args: --failOnCVSS 7 --enableRetired --out reports
 
-      - name: Run OWASP Dependency-Check (SARIF)
-        uses: dependency-check/Dependency-Check_Action@1.1.0
-        id: depcheck
-        with:
-          project: 'test'
-          path: '.'
-          format: 'SARIF'
-          out: 'reports'
-          args: >
-            --failOnCVSS 7
-            --enableRetired
+        - uses: dependency-check/Dependency-Check_Action@main
+          env:
+            JAVA_HOME: /opt/jdk
+          with:
+            project: 'app-security'
+            path: '.'
+            format: 'HTML'  
+            args: --failOnCVSS 7 --enableRetired --prettyPrint --out reports
 
-      - name: Run OWASP Dependency-Check (HTML)
-        uses: dependency-check/Dependency-Check_Action@1.1.0
-        id: depcheck_html
-        with:
-          project: 'test'
-          path: '.'
-          format: 'HTML'
-          out: 'reports'
-          args: >
-            --failOnCVSS 7
-            --enableRetired
+        - uses: actions/upload-artifact@v4
+          if: failure()
+          with:
+            name: security-reports
+            path: reports/
+            retention-days: 7
 
-      - name: Upload HTML Report as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Depcheck HTML Report
-          path: reports/dependency-check-report.html
-
-      - name: Upload SARIF to GitHub Security Dashboard
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: reports/dependency-check-report.sarif
-
+        - uses: github/codeql-action/upload-sarif@v3
+          if: always()
+          with:
+            sarif_file: reports/dependency-check-report.sarif
 
 
 
