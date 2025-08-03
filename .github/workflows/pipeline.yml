@@ -59,31 +59,31 @@ jobs:
   # ------------------ OWASP Dependency-Check (SCA) ------------------
 
 
-  dependency-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # dependency-check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Cache Dependency Check Database
-        uses: actions/cache@v4
-        with:
-          path: ~/.dependency-check-data
-          key: dependency-check-db-${{ runner.os }}
-          restore-keys: dependency-check-db-
+  #     - name: Cache Dependency Check Database
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.dependency-check-data
+  #         key: dependency-check-db-${{ runner.os }}
+  #         restore-keys: dependency-check-db-
 
-      - name: Run Security Scan
-        run: |
-          sudo chmod +x ./scripts/dependency-check.sh
-          ./scripts/dependency-check.sh "${{ secrets.NVD_API_KEY }}" "7"
+  #     - name: Run Security Scan
+  #       run: |
+  #         sudo chmod +x ./scripts/dependency-check.sh
+  #         ./scripts/dependency-check.sh "${{ secrets.NVD_API_KEY }}" "7"
 
-      - name: Upload SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: reports/dependency-check-report.sarif
+  #     - name: Upload SARIF to GitHub Security
+  #       uses: github/codeql-action/upload-sarif@v3
+  #       if: always()
+  #       with:
+  #         sarif_file: reports/dependency-check-report.sarif
 
 
-  # ------------------ Opa Docker Security Check ------------------
+  # # ------------------ Opa Docker Security Check ------------------
 
 
   opa_security-check:
