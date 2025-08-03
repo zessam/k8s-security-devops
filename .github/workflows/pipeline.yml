@@ -59,8 +59,6 @@ jobs:
   # ------------------ OWASP Dependency-Check (SCA) ------------------
 
 
-
-
   dependency-check:
       runs-on: ubuntu-latest
       if: github.event_name != 'push' || github.ref == 'refs/heads/main'
@@ -72,47 +70,65 @@ jobs:
           with:
             distribution: 'temurin'
             java-version: '17'
-            cache: 'maven'
+            cache: 'maven'  # Built-in Maven caching - always works
 
-        - uses: actions/cache@v4
-          with:
-            path: ~/.dependency-check
-            key: depcheck-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-            restore-keys: depcheck-${{ runner.os }}-
-
-        - run: |
-            mvn compile -q -DskipTests
+        # Pre-create cache directories to avoid warnings
+        - name: Setup Cache Directories
+          run: |
+            mkdir -p ~/.dependency-check
+            mkdir -p ~/owasp-dependency-check-data
             mkdir -p reports
 
-        - uses: dependency-check/Dependency-Check_Action@main
+        - name: Cache Dependency-Check Database
+          uses: actions/cache@v4
+          with:
+            path: |
+              ~/.dependency-check
+              ~/owasp-dependency-check-data
+            key: depcheck-v2-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            restore-keys: |
+              depcheck-v2-${{ runner.os }}-
+
+        - name: Build Project
+          run: mvn compile -q -DskipTests
+
+        - name: Run Security Scan (SARIF)
+          uses: dependency-check/Dependency-Check_Action@main
           env:
             JAVA_HOME: /opt/jdk
           with:
-            project: 'app-security'
+            project: 'security-scan'
             path: '.'
             format: 'SARIF'
             args: --failOnCVSS 7 --enableRetired --out reports
 
-        - uses: dependency-check/Dependency-Check_Action@main
+        - name: Run Security Scan (HTML)
+          uses: dependency-check/Dependency-Check_Action@main
           env:
             JAVA_HOME: /opt/jdk
           with:
-            project: 'app-security'
+            project: 'security-scan'
             path: '.'
             format: 'HTML'  
             args: --failOnCVSS 7 --enableRetired --prettyPrint --out reports
 
-        - uses: actions/upload-artifact@v4
+        - name: Upload Reports on Failure
+          uses: actions/upload-artifact@v4
           if: failure()
           with:
-            name: security-reports
+            name: security-reports-${{ github.run_number }}
             path: reports/
             retention-days: 7
 
-        - uses: github/codeql-action/upload-sarif@v3
+        - name: Upload SARIF to Security Tab
+          uses: github/codeql-action/upload-sarif@v3
           if: always()
           with:
             sarif_file: reports/dependency-check-report.sarif
+
+
+
+
 
 
 
