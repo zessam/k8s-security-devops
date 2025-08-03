@@ -94,7 +94,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Run OPA security check on Dockerfile
         run: |
-          ls -la
           if [ -f dockerfile ]; then
             echo "Running OPA security check on Dockerfile..."
             docker run --rm -v $(pwd):/policy -w /policy openpolicyagent/conftest:latest test dockerfile --policy opa-docker-security.rego         
