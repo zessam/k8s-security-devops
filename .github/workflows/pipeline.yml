@@ -137,6 +137,29 @@ jobs:
           echo "tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
           echo "✅ Built and pushed: $IMAGE_URI"
 
+
+  # ------------------ Kubesec ------------------
+
+
+    
+  kubesec:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify jq is available
+        run: jq --version
+
+      - name: Run Kubesec Scan Script
+        run: |
+          chmod +x ./scripts/kubesec-scan.sh
+          ./scripts/kubesec-scan.sh
+
+
+
+
   # ------------------ Helm Deployment to EKS ------------------
   deploy:
     runs-on: ubuntu-latest
