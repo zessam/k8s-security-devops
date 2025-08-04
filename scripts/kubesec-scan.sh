@@ -1,27 +1,19 @@
 #!/bin/bash
 
-#kubesec-scan.sh
+# Render Helm templates to a single YAML file
+helm template java-app ./helm > rendered-manifest.yaml
 
-# using kubesec v2 api
-scan_result=$(curl -sSX POST --data-binary @"k8s_deployment_service.yaml" https://v2.kubesec.io/scan)
-scan_message=$(curl -sSX POST --data-binary @"k8s_deployment_service.yaml" https://v2.kubesec.io/scan | jq .[0].message -r ) 
-scan_score=$(curl -sSX POST --data-binary @"k8s_deployment_service.yaml" https://v2.kubesec.io/scan | jq .[0].score ) 
+# Send to Kubesec API for scanning
+scan_result=$(curl -sSX POST --data-binary @rendered-manifest.yaml https://v2.kubesec.io/scan)
+scan_score=$(echo "$scan_result" | jq '.[0].score')
+scan_message=$(echo "$scan_result" | jq -r '.[0].scoring[]?.reason // empty')
 
-
-# using kubesec docker image for scanning
-# scan_result=$(docker run -i kubesec/kubesec:512c5e0 scan /dev/stdin < k8s_deployment_service.yaml)
-# scan_message=$(docker run -i kubesec/kubesec:512c5e0 scan /dev/stdin < k8s_deployment_service.yaml | jq .[].message -r)
-# scan_score=$(docker run -i kubesec/kubesec:512c5e0 scan /dev/stdin < k8s_deployment_service.yaml | jq .[].score)
-
-	
-    # Kubesec scan result processing
-    # echo "Scan Score : $scan_score"
-
-	if [[ "${scan_score}" -ge 5 ]]; then
-	    echo "Score is $scan_score"
-	    echo "Kubesec Scan $scan_message"
-	else
-	    echo "Score is $scan_score, which is less than or equal to 5."
-	    echo "Scanning Kubernetes Resource has Failed"
-	    exit 1;
-	fi;
+# Evaluate score
+if [[ "$scan_score" -ge 5 ]]; then
+  echo "Score is $scan_score"
+  echo "Kubesec Scan: $scan_message"
+else
+  echo "Score is $scan_score, which is less than or equal to 5."
+  echo "Scanning Kubernetes Resource has Failed"
+  exit 1
+fi

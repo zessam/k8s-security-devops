@@ -1,0 +1,15 @@
+.git
+.github
+.gitignore
+target
+*.md
+*.log
+*.iml
+.idea
+.vscode
+*.swp
+*.swo
+*.bak
+.DS_Store
+node_modules
+test
