@@ -2,6 +2,11 @@ name: DAST - ZAP API Scan
 
 on: [push]
 
+permissions:
+  contents: read
+  issues: write
+
+
 jobs:
   zap_scan:
     name: DAST - ZAP API Scan
