@@ -58,45 +58,37 @@ jobs:
 
   # ------------------ OWASP Dependency-Check (SCA) ------------------
 
-  dependency-check:
+
+name: OWASP Dependency-Check
+
+on: [push, pull_request]
+
+jobs:
+  security-scan:
+    name: Security Scan Action
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up cache for Dependency-Check DB
-        uses: actions/cache@v4
+      - name: Run Security Scan (Horusec, Dependency-Check, ZAP, Dastardly)
+        uses: TinyCrowsTesting/gh-tinycrows@v1.0.0
         with:
-          path: ~/.dependency-check-data
-          key: dependency-check-db-${{ runner.os }}-${{ hashFiles('**/dependency-check.sh') }}
-          restore-keys: |
-            dependency-check-db-${{ runner.os }}-
-
-      - name: Run OWASP Dependency-Check
-        run: |
-          chmod +x ./scripts/dependency-check.sh
-          ./scripts/dependency-check.sh  7 
-          
-          #${{ secrets.NVD_API_KEY }}
-
-
-
-      - name: Upload SARIF Report to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: reports/dependency-check-report.sarif
-
+          scanner: 'dependency-check'
+          # Optional: You can define the language or path to scan if needed
+          path: './'
+          # Optional: You may add additional arguments
+          args: '--format ALL'
 
 
   # # ------------------ Opa Docker Security Check ------------------
 
 
-  opa_security-check:
-    runs-on: ubuntu-latest
-    needs: [test, mutation-test]
-    steps:
+    opa_security-check:
+      runs-on: ubuntu-latest
+      needs: [test, mutation-test]
+      steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Run OPA security check on Dockerfile
