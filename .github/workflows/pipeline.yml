@@ -76,10 +76,12 @@ jobs:
       - name: Run OWASP Dependency-Check
         run: |
           chmod +x ./scripts/dependency-check.sh
-          ./scripts/dependency-check.sh  7 ${{ secrets.NVD_API_KEY }}
-
-
+          ./scripts/dependency-check.sh  7 
           
+          #${{ secrets.NVD_API_KEY }}
+
+
+
       - name: Upload SARIF Report to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()

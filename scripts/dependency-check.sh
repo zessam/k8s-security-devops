@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-API_KEY=${1:-""}
-CVSS_THRESHOLD=${2:-7}
+CVSS_THRESHOLD=${1:-7}
 
 DC_VERSION="9.0.7"
 DC_DIR="./tools/dependency-check"
@@ -22,15 +21,8 @@ if [ ! -f "$DC_BIN" ]; then
   chmod +x "$DC_BIN"
 fi
 
-# Add API key if provided
-if [ -n "$API_KEY" ]; then
-    API_ARGS="--nvdApiKey $API_KEY"
-else
-    API_ARGS=""
-fi
-
-# Run the scan
-echo "🔍 Running OWASP Dependency-Check scan..."
+# Run the scan without API key
+echo "🔍 Running OWASP Dependency-Check scan (no API key)..."
 "$DC_BIN" \
   --scan "$(pwd)" \
   --format SARIF \
@@ -38,7 +30,6 @@ echo "🔍 Running OWASP Dependency-Check scan..."
   --failOnCVSS "$CVSS_THRESHOLD" \
   --enableRetired \
   --out "$(pwd)/reports" \
-  --data "$DC_DATA" \
-  $API_ARGS
+  --data "$DC_DATA"
 
 echo "✅ Scan complete. SARIF report saved to: reports/dependency-check-report.sarif"
