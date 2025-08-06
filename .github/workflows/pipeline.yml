@@ -58,37 +58,33 @@ jobs:
 
   # ------------------ OWASP Dependency-Check (SCA) ------------------
 
-
-name: OWASP Dependency-Check
-
-on: [push, pull_request]
-
-jobs:
-  security-scan:
-    name: Security Scan Action
+  owasp-dependency-check:
     runs-on: ubuntu-latest
-
+    needs: [test, mutation-test]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Run Security Scan (Horusec, Dependency-Check, ZAP, Dastardly)
+      - name: Run OWASP Dependency-Check
         uses: TinyCrowsTesting/gh-tinycrows@v1.0.0
         with:
           scanner: 'dependency-check'
-          # Optional: You can define the language or path to scan if needed
           path: './'
-          # Optional: You may add additional arguments
           args: '--format ALL'
 
 
+
+
+
+
+          
   # # ------------------ Opa Docker Security Check ------------------
 
 
-    opa_security-check:
-      runs-on: ubuntu-latest
-      needs: [test, mutation-test]
-      steps:
+  opa_security-check:
+    runs-on: ubuntu-latest
+    needs: [test, mutation-test]
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Run OPA security check on Dockerfile
