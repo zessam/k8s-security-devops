@@ -71,7 +71,7 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
           TZ: Africa/Cairo
-        with:
+        with: 
           scanner: 'dependency-check'
           path: './'
           args: '--format ALL'
