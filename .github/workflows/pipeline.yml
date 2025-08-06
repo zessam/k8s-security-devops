@@ -58,29 +58,32 @@ jobs:
 
   # ------------------ OWASP Dependency-Check (SCA) ------------------
 
+  dependency-check:
+    runs-on: ubuntu-latest
 
-  # dependency-check:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-  #     - name: Cache Dependency Check Database
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: ~/.dependency-check-data
-  #         key: dependency-check-db-${{ runner.os }}
-  #         restore-keys: dependency-check-db-
+      - name: Set up cache for Dependency-Check DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.dependency-check-data
+          key: dependency-check-db-${{ runner.os }}-${{ hashFiles('**/dependency-check.sh') }}
+          restore-keys: |
+            dependency-check-db-${{ runner.os }}-
 
-  #     - name: Run Security Scan
-  #       run: |
-  #         sudo chmod +x ./scripts/dependency-check.sh
-  #         ./scripts/dependency-check.sh "${{ secrets.NVD_API_KEY }}" "7"
+      - name: Run OWASP Dependency-Check (No Docker)
+        run: |
+          chmod +x ./scripts/dependency-check.sh
+          ./scripts/dependency-check.sh "${{ secrets.NVD_API_KEY }}" "7"
 
-  #     - name: Upload SARIF to GitHub Security
-  #       uses: github/codeql-action/upload-sarif@v3
-  #       if: always()
-  #       with:
-  #         sarif_file: reports/dependency-check-report.sarif
+      - name: Upload SARIF Report to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: reports/dependency-check-report.sarif
+
 
 
   # # ------------------ Opa Docker Security Check ------------------
