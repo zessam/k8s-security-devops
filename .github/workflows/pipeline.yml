@@ -17,7 +17,8 @@ env:
   ECR_REPOSITORY: devsecops/java-app
   EKS_CLUSTER_NAME: eks-devsecops-cluster
   AWS_REGION: eu-west-1
-
+  TZ: Africa/Cairo
+  DEBIAN_FRONTEND: noninteractive
 
 jobs:
 
