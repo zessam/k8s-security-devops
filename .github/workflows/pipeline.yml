@@ -73,7 +73,7 @@ jobs:
           restore-keys: |
             dependency-check-db-${{ runner.os }}-
 
-      - name: Run OWASP Dependency-Check (No Docker)
+      - name: Run OWASP Dependency-Check
         run: |
           chmod +x ./scripts/dependency-check.sh
           ./scripts/dependency-check.sh "${{ secrets.NVD_API_KEY }}" "7"
