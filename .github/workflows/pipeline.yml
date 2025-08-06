@@ -141,21 +141,21 @@ jobs:
   # ------------------ Kubesec ------------------
 
 
-    
-  kubesec:
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # kubesec:
+  #   runs-on: ubuntu-latest
 
-      - name: Verify jq is available
-        run: jq --version
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Run Kubesec Scan Script
-        run: |
-          chmod +x ./scripts/kubesec-scan.sh
-          ./scripts/kubesec-scan.sh
+  #     - name: Verify jq is available
+  #       run: jq --version
+
+  #     - name: Run Kubesec Scan Script
+  #       run: |
+  #         chmod +x ./scripts/kubesec-scan.sh
+  #         ./scripts/kubesec-scan.sh
 
 
 

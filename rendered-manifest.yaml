@@ -1,0 +1,102 @@
+---
+# Source: java-app/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: java-app-java-app-config
+  labels:
+    app: java-app
+    release: java-app
+    environment: prod
+data:
+  LOG_LEVEL: INFO
+  ENVIRONMENT: prod
+  APP_NAME: java-app-java-app
+---
+# Source: java-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-app
+  labels:
+    app: java-app
+    release: java-app
+    environment: prod
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: java-app
+    release: java-app
+---
+# Source: java-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-app
+  labels:
+    app: java-app
+    release: java-app
+    environment: prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java-app
+      release: java-app
+  template:
+    metadata:
+      labels:
+        app: java-app
+        release: java-app
+    spec:
+      containers:
+        - name: java-app
+          image: "369528189607.dkr.ecr.eu-west-1.amazonaws.com/devsecops/java-app:latest"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: JAVA_OPTS
+              value: -Xms512m -Xmx512m
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - NET_RAW
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 100
+          volumeMounts:
+            - mountPath: /tmp
+              name: vol
+      volumes:
+        - emptyDir: {}
+          name: vol
