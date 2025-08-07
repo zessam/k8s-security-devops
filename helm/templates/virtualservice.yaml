@@ -6,7 +6,8 @@ metadata:
   name: {{ .Values.istio.virtualService.name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "java-app.labels" . | nindent 4 }}
+    app: {{ .Values.fullnameOverride }}
+    environment: {{ .Values.environment }}
 spec:
   hosts:
   {{- range .Values.istio.virtualService.hosts }}

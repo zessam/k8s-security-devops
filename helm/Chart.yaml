@@ -4,3 +4,11 @@ description: Java DevSecOps Application
 type: application
 version: 0.1.0
 appVersion: "1.0.0"
+keywords:
+  - java
+  - istio
+  - microservices
+home: https://github.com/zessam/k8s-security-devops.git
+maintainers:
+  - name: Zeyad Essam
+    email: zessam268@gmail.com

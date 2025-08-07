@@ -6,7 +6,8 @@ metadata:
   name: {{ .Values.istio.gateway.name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "java-app.labels" . | nindent 4 }}
+    app: {{ .Values.fullnameOverride }}
+    environment: {{ .Values.environment }}
 spec:
   selector:
     istio: ingressgateway
