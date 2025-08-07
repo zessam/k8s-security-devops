@@ -174,14 +174,14 @@ graph LR
 
 ### Current vs Planned Capabilities
 
-| Capability | Current | Planned | Timeline |
-|------------|---------|---------|----------|
-| **Deployment Strategy** | Manual Helm deployments | GitOps with ArgoCD | Q1 2024 |
-| **Secrets Management** | Static Kubernetes secrets | HashiCorp Vault | Q2 2024 |
-| **Security Scanning** | OWASP + SonarQube | Trivy + Advanced scanning | Q3 2024 |
-| **Policy Enforcement** | Basic OPA policies | OPA Gatekeeper | Q3 2024 |
-| **Multi-Environment** | Manual promotion | Automated GitOps | Q1 2024 |
-| **Compliance** | Manual checks | Automated reporting | Q4 2024 |
+| Capability | Current | Planned |
+|------------|---------|---------|
+| **Deployment Strategy** | Manual Helm deployments | GitOps with ArgoCD |
+| **Secrets Management** | Static Kubernetes secrets | HashiCorp Vault |
+| **Security Scanning** | OWASP + SonarQube | Trivy + Advanced scanning |
+| **Policy Enforcement** | Basic OPA policies | OPA Gatekeeper |
+| **Multi-Environment** | Manual promotion | Automated GitOps |
+| **Compliance** | Manual checks | Automated reporting |
 
 ## 🤝 Contributing
 
