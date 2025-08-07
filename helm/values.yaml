@@ -13,6 +13,7 @@ fullnameOverride: java-app
 service:
   type: ClusterIP  # Changed from LoadBalancer to ClusterIP for Istio
   port: 80
+  name: http
   targetPort: 8080
 
 # Istio Gateway and VirtualService configuration
