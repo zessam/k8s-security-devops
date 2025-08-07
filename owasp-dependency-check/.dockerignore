@@ -1,0 +1,11 @@
+# Exclude source control, secrets, and large contexts
+.git
+.dockerignore
+Dockerfile
+*.pem
+*.key
+*.crt
+*.env
+node_modules
+*.zip
+*.tar.gz

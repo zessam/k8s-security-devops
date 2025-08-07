@@ -1,0 +1,48 @@
+# Stage 1: Build tools in a full OS
+FROM ubuntu:20.04 as builder
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG TZ=Africa/Cairo
+
+# Set timezone and install required packages
+RUN apt-get update && apt-get install -y \
+    tzdata \
+    curl \
+    git \
+    jq \
+    openjdk-11-jdk \
+    unzip \
+    ca-certificates \
+    && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Horusec CLI securely (download and verify manually)
+RUN curl -sSL https://github.com/ZupIT/horusec/releases/latest/download/horusec-linux-amd64 -o /usr/local/bin/horusec \
+    && chmod +x /usr/local/bin/horusec
+
+# Install Dependency-Check
+RUN curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v6.5.0/dependency-check-6.5.0-release.zip \
+    && unzip dependency-check-6.5.0-release.zip -d /opt/dependency-check \
+    && rm dependency-check-6.5.0-release.zip
+
+# Stage 2: Final minimal image
+FROM gcr.io/distroless/base-debian10
+
+# Copy only the necessary tools from builder
+COPY --from=builder /usr/local/bin/horusec /usr/local/bin/horusec
+COPY --from=builder /opt/dependency-check /opt/dependency-check
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /etc/timezone /etc/timezone
+COPY entrypoint.sh /entrypoint.sh
+
+# Make sure entrypoint is executable and owned securely
+RUN chmod 500 /entrypoint.sh && chown root:root /entrypoint.sh
+
+# Set non-root user
+USER 1001
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+# HEALTHCHECK (simple check for horusec binary)
+HEALTHCHECK CMD [ "test", "-x", "/usr/local/bin/horusec" ]

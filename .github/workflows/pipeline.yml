@@ -60,7 +60,6 @@ jobs:
   # ------------------ OWASP Dependency-Check (SCA) ------------------
   owasp-dependency-check:
     runs-on: ubuntu-latest
-    
 
     steps:
       - name: Checkout code

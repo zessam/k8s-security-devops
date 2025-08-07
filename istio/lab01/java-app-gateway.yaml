@@ -1,0 +1,36 @@
+# gateway.yaml
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: java-app-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: java-app-vs
+  namespace: default
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - java-app-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: java-app
+        port:
+          number: 80  # ✅ Fixed: Changed from 8080 to 80
