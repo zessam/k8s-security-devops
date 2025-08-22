@@ -211,7 +211,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For support and questions:
-- **Issues**: [GitHub Issues](https://github.com/your-username/k8s-security-devops/issues)
+- **Issues**: [GitHub Issues](https://github.com/zessam/k8s-security-devops/issues)
 - **Email**: zessam268@gmail.com
 
 ---
