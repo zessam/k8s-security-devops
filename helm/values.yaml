@@ -17,29 +17,29 @@ service:
   targetPort: 8080
 
 # Istio Gateway and VirtualService configuration
-istio:
-  enabled: true
-  gateway:
-    create: true
-    name: java-app-gateway
-    hosts:
-      - "*"  # Change to your domain in production, e.g., "myapp.company.com"
-    port: 80
-    protocol: HTTP
-  virtualService:
-    create: true
-    name: java-app-vs
-    hosts:
-      - "*"
-    http:
-      - match:
-          - uri:
-              prefix: /
-        route:
-          - destination:
-              host: java-app
-              port:
-                number: 80
+# istio:
+#   enabled: true
+#   gateway:
+#     create: true
+#     name: java-app-gateway
+#     hosts:
+#       - "*"  # Change to your domain in production, e.g., "myapp.company.com"
+#     port: 80
+#     protocol: HTTP
+#   virtualService:
+#     create: true
+#     name: java-app-vs
+#     hosts:
+#       - "*"
+#     http:
+#       - match:
+#           - uri:
+#               prefix: /
+#         route:
+#           - destination:
+#               host: java-app
+#               port:
+#                 number: 80
 
 healthCheck:
   enabled: true
