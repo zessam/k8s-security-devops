@@ -27,7 +27,7 @@ A comprehensive DevSecOps demonstration showcasing automated security testing, c
 - **Monitoring**: Prometheus, Grafana, Jaeger, and Kiali
 - **Infrastructure as Code**: Helm charts for deployment automation
 
-### DevSecOps Pipeline Flow
+### DevSecOps Pipeline Flow 
 
 ```mermaid
 graph LR
