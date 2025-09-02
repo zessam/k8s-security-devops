@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Chart.Name }}
     release: {{ .Release.Name }}
-    environment: {{ .Values.environment }}
+    environment: {{ .Values.environment }} 
 data:
   LOG_LEVEL: {{ .Values.config.logLevel | default "INFO" }}
   ENVIRONMENT: {{ .Values.environment }}
